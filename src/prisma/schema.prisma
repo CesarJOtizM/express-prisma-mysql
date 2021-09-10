@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum rol {
+  Tramitador
+  Admin
+  Propietario
+}
+
+model Usuario {
+  id             Int           @id @default(autoincrement())
+  email          String        @unique
+  password       String
+  usuario_Rol    Usuario_Rol[]
+  propietario    Propietario?  @relation(fields: [propietario_ID], references: [id])
+  propietario_ID Int?
+  tramitador     Tramitador?   @relation(fields: [tramitador_ID], references: [id])
+  tramitador_ID  Int?
+}
+
+model Role {
+  id          Int           @id @default(autoincrement())
+  tipo        rol           @default(Propietario)
+  usuario_Rol Usuario_Rol[]
+}
+
+model Tramitador {
+  id         Int      @id @default(autoincrement())
+  nombres    String
+  apellidos  String
+  tipo_doc   String
+  numero_doc Int
+  email      String   @unique
+  telefono   String
+  ciudad     String
+  usuario    Usuario?
+}
+
+model Propietario {
+  id                  Int                   @id @default(autoincrement())
+  nombres             String
+  apellidos           String
+  tipo_doc            String
+  numero_doc          Int
+  email               String                @unique
+  telefono            String
+  ciudad              String
+  es_Juridica         Boolean
+  Propietarios_Predio Propietarios_Predio[]
+  usuario             Usuario?
+}
+
+model Predio {
+  id                  Int                   @id @default(autoincrement())
+  codigoCatrastal     String
+  matricula           String?
+  via                 String
+  nro                 String
+  apen                String
+  cruce               String
+  placa               String?
+  apartamento         String?
+  urb_edif            String
+  estrato             String
+  barrio              String
+  comuna              String
+  clasificacionSuelo  String
+  uso                 String
+  poligono            String
+  zonaAvaluo          String
+  Propietarios_Predio Propietarios_Predio[]
+}
+
+model Propietarios_Predio {
+  propietario     Propietario @relation(fields: [propietarios_ID], references: [id])
+  propietarios_ID Int
+  predio          Predio      @relation(fields: [predio_ID], references: [id])
+  predio_ID       Int
+
+  @@id([propietarios_ID, predio_ID])
+}
+
+model Usuario_Rol {
+  usuario     Usuario @relation(fields: [usuarios_ID], references: [id])
+  usuarios_ID Int
+  rol         Role    @relation(fields: [rol_ID], references: [id])
+  rol_ID      Int
+
+  @@id([usuarios_ID, rol_ID])
+}

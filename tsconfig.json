@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target":"es2018",
+    "sourceMap": true,
+    "outDir": "dist",
+    "strict": true,
+    "lib": ["esnext"],
+    "moduleResolution":"Node",
+    "esModuleInterop": true,
+    "types" : ["node", "express"]
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules"]
+}
