@@ -99,7 +99,7 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
       include: {
         tramitador: true,
         propietario: true,
-        usuario_Rol: { select: { rol_ID: true } },
+        rol: { select: { rol_ID: true } },
       },
     });
     res.status(200).send({ datos: data });

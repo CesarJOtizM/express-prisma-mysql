@@ -17,7 +17,7 @@ model Usuario {
   id             Int           @id @default(autoincrement())
   email          String        @unique
   password       String
-  usuario_Rol    Usuario_Rol[]
+  rol            Usuario_Rol[]
   propietario    Propietario?  @relation(fields: [propietario_ID], references: [id])
   propietario_ID Int?
   tramitador     Tramitador?   @relation(fields: [tramitador_ID], references: [id])
@@ -25,9 +25,9 @@ model Usuario {
 }
 
 model Role {
-  id          Int           @id @default(autoincrement())
-  tipo        rol           @default(Propietario)
-  usuario_Rol Usuario_Rol[]
+  id      Int           @id @default(autoincrement())
+  tipo    String
+  usuario Usuario_Rol[]
 }
 
 model Tramitador {
@@ -35,7 +35,7 @@ model Tramitador {
   nombres    String
   apellidos  String
   tipo_doc   String
-  numero_doc Int
+  numero_doc String   @unique
   email      String   @unique
   telefono   String
   ciudad     String
@@ -43,38 +43,38 @@ model Tramitador {
 }
 
 model Propietario {
-  id                  Int                   @id @default(autoincrement())
-  nombres             String
-  apellidos           String
-  tipo_doc            String
-  numero_doc          Int
-  email               String                @unique
-  telefono            String
-  ciudad              String
-  es_Juridica         Boolean
-  Propietarios_Predio Propietarios_Predio[]
-  usuario             Usuario?
+  id          Int                   @id @default(autoincrement())
+  nombres     String
+  apellidos   String
+  tipo_doc    String
+  numero_doc  String                @unique
+  email       String                @unique
+  telefono    String
+  ciudad      String
+  es_Juridica Boolean
+  usuario     Usuario?
+  predios     Propietarios_Predio[]
 }
 
 model Predio {
-  id                  Int                   @id @default(autoincrement())
-  codigoCatrastal     String
-  matricula           String?
-  via                 String
-  nro                 String
-  apen                String
-  cruce               String
-  placa               String?
-  apartamento         String?
-  urb_edif            String
-  estrato             String
-  barrio              String
-  comuna              String
-  clasificacionSuelo  String
-  uso                 String
-  poligono            String
-  zonaAvaluo          String
-  Propietarios_Predio Propietarios_Predio[]
+  id                 Int                   @id @default(autoincrement())
+  codigoCatrastal    String                @unique
+  matricula          String?               @unique
+  via                String
+  nro                String
+  apen               String
+  cruce              String
+  placa              String?
+  apartamento        String?
+  urb_edif           String
+  estrato            String
+  barrio             String
+  comuna             String
+  clasificacionSuelo String
+  uso                String
+  poligono           String
+  zonaAvaluo         String
+  propietarios       Propietarios_Predio[]
 }
 
 model Propietarios_Predio {
@@ -89,7 +89,7 @@ model Propietarios_Predio {
 model Usuario_Rol {
   usuario     Usuario @relation(fields: [usuarios_ID], references: [id])
   usuarios_ID Int
-  rol         Role    @relation(fields: [rol_ID], references: [id])
+  roles       Role    @relation(fields: [rol_ID], references: [id])
   rol_ID      Int
 
   @@id([usuarios_ID, rol_ID])
