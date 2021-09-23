@@ -18,7 +18,7 @@ export const create = async (req: Request, res: Response): Promise<void> => {
         ...req.body,
       },
     });
-    res.status(201).send({ datos: data });
+    res.status(201).send({ data });
   } catch (error) {
     res.status(500).send({
       message: error || 'Some error occurred while creating the processor.',
@@ -35,7 +35,7 @@ export const findAll = async (req: Request, res: Response): Promise<void> => {
     const data = await tramitador.findMany({
       where: condition,
     });
-    res.status(200).send({ datos: data });
+    res.status(200).send({ data });
   } catch (error) {
     res.status(500).send({
       message: error || 'Some error occurred while finding the processor.',
@@ -51,9 +51,17 @@ export const findOne = async (req: Request, res: Response): Promise<void> => {
       where: {
         id: parseInt(id),
       },
+      include: {
+        Usuario: true,
+        Radicado: {
+          select: {
+            id: true,
+          },
+        },
+      },
     });
     res.status(200).send({
-      datos: data,
+      data,
     });
   } catch (error) {
     res.status(500).send({
@@ -74,7 +82,7 @@ export const edit = async (req: Request, res: Response): Promise<void> => {
     });
     if (data) {
       res.status(200).send({
-        datos: data,
+        data,
       });
     } else {
       res.status(400).send({
@@ -99,7 +107,7 @@ export const deleteOne = async (req: Request, res: Response): Promise<void> => {
     });
     if (data) {
       res.status(200).send({
-        datos: data,
+        data,
       });
     } else {
       res.status(400).send({

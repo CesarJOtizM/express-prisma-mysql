@@ -14,56 +14,66 @@ enum rol {
 }
 
 model Usuario {
-  id             Int           @id @default(autoincrement())
-  email          String        @unique
-  password       String
-  rol            Usuario_Rol[]
-  propietario    Propietario?  @relation(fields: [propietario_ID], references: [id])
-  propietario_ID Int?
-  tramitador     Tramitador?   @relation(fields: [tramitador_ID], references: [id])
-  tramitador_ID  Int?
+  id       Int    @id @default(autoincrement())
+  email    String @unique
+  password String
+
+  Rol            Role[]
+  Propietario    Propietario? @relation(fields: [Propietario_ID], references: [id])
+  Propietario_ID Int?
+  Tramitador     Tramitador?  @relation(fields: [Tramitador_ID], references: [id])
+  Tramitador_ID  Int?
+  Radicado       Radicado[]
 }
 
 model Role {
-  id      Int           @id @default(autoincrement())
-  tipo    String
-  usuario Usuario_Rol[]
+  id   Int    @id @default(autoincrement())
+  tipo String
+
+  Usuario Usuario[]
 }
 
 model Tramitador {
-  id         Int      @id @default(autoincrement())
+  id         Int    @id @default(autoincrement())
   nombres    String
   apellidos  String
   tipo_doc   String
-  numero_doc String   @unique
-  email      String   @unique
+  numero_doc String @unique
+  email      String @unique
   telefono   String
   ciudad     String
-  usuario    Usuario?
+
+  Usuario  Usuario?
+  Radicado Radicado[]
+
 }
 
 model Propietario {
-  id          Int                   @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   nombres     String
   apellidos   String
   tipo_doc    String
-  numero_doc  String                @unique
-  email       String                @unique
+  numero_doc  String  @unique
+  email       String  @unique
   telefono    String
   ciudad      String
   es_Juridica Boolean
-  usuario     Usuario?
-  predios     Propietarios_Predio[]
+
+  Usuario  Usuario?
+  Predios  Predio[]
+  Radicado Radicado[]
 }
 
 model Predio {
-  id                 Int                   @id @default(autoincrement())
-  codigoCatrastal    String                @unique
-  matricula          String?               @unique
+  id                 Int     @id @default(autoincrement())
+  codigoCatrastal    String  @unique
+  matricula          String? @unique
   via                String
   nro                String
   apen               String
   cruce              String
+  nro2               String  @default("")
+  apen2              String  @default("")
   placa              String?
   apartamento        String?
   urb_edif           String
@@ -74,23 +84,46 @@ model Predio {
   uso                String
   poligono           String
   zonaAvaluo         String
-  propietarios       Propietarios_Predio[]
+
+  Propietarios Propietario[]
+  Radicados    Radicado[]
 }
 
-model Propietarios_Predio {
-  propietario     Propietario @relation(fields: [propietarios_ID], references: [id])
-  propietarios_ID Int
-  predio          Predio      @relation(fields: [predio_ID], references: [id])
-  predio_ID       Int
+model TipoSolicitud {
+  id                  Int    @id @default(autoincrement())
+  licencia            String
+  tipo_licencia       String
+  objetivo_tramite    String
+  area_contruicda     String
+  sistema_estructural String
+  detalles_solitud    String
 
-  @@id([propietarios_ID, predio_ID])
+  Radicado      Radicado?  @relation(fields: [Radicado_ID], references: [id])
+  Radicado_ID   Int?
+  Ponderate     Ponderante @relation(fields: [Ponderante_ID], references: [id])
+  Ponderante_ID Int
 }
 
-model Usuario_Rol {
-  usuario     Usuario @relation(fields: [usuarios_ID], references: [id])
-  usuarios_ID Int
-  roles       Role    @relation(fields: [rol_ID], references: [id])
-  rol_ID      Int
+model Ponderante {
+  id     Int    @id @default(autoincrement())
+  nombre String
 
-  @@id([usuarios_ID, rol_ID])
+  Tipo_Solicitud TipoSolicitud?
+}
+
+model Radicado {
+  id            Int    @id @default(autoincrement())
+  nro_radicado  String @unique
+  cargo_fijo    Int
+  cargo_varible Int?
+
+  Usuario        Usuario?        @relation(fields: [usuario_ID], references: [id])
+  usuario_ID     Int?
+  Tramitador     Tramitador?     @relation(fields: [Tramitador_ID], references: [id])
+  Tramitador_ID  Int?
+  Propietario    Propietario?    @relation(fields: [Propietario_ID], references: [id])
+  Propietario_ID Int?
+  Predio         Predio?         @relation(fields: [Predio_ID], references: [id])
+  Predio_ID      Int?
+  Tipo_Solicitud TipoSolicitud[]
 }
