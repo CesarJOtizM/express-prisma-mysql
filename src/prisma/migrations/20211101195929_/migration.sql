@@ -7,8 +7,8 @@ CREATE TABLE `Usuario` (
     `Tramitador_ID` INTEGER,
 
     UNIQUE INDEX `Usuario_email_key`(`email`),
-    UNIQUE INDEX `Usuario_Propietario_ID_unique`(`Propietario_ID`),
-    UNIQUE INDEX `Usuario_Tramitador_ID_unique`(`Tramitador_ID`),
+    UNIQUE INDEX `Usuario_Propietario_ID_key`(`Propietario_ID`),
+    UNIQUE INDEX `Usuario_Tramitador_ID_key`(`Tramitador_ID`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -45,8 +45,7 @@ CREATE TABLE `Propietario` (
     `numero_doc` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
     `telefono` VARCHAR(191) NOT NULL,
-    `ciudad` VARCHAR(191) NOT NULL,
-    `es_Juridica` BOOLEAN NOT NULL,
+    `tipo_persona` VARCHAR(191) NOT NULL DEFAULT 'Natural',
 
     UNIQUE INDEX `Propietario_numero_doc_key`(`numero_doc`),
     UNIQUE INDEX `Propietario_email_key`(`email`),
@@ -56,17 +55,17 @@ CREATE TABLE `Propietario` (
 -- CreateTable
 CREATE TABLE `Predio` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `codigoCatrastal` VARCHAR(191) NOT NULL,
+    `codigoCatastral` VARCHAR(191) NOT NULL,
     `matricula` VARCHAR(191),
     `via` VARCHAR(191) NOT NULL,
     `nro` VARCHAR(191) NOT NULL,
-    `apen` VARCHAR(191) NOT NULL,
+    `apen` VARCHAR(191) NOT NULL DEFAULT '',
     `cruce` VARCHAR(191) NOT NULL,
-    `nro2` VARCHAR(191) NOT NULL DEFAULT '',
+    `nro2` VARCHAR(191) NOT NULL,
     `apen2` VARCHAR(191) NOT NULL DEFAULT '',
     `placa` VARCHAR(191),
     `apartamento` VARCHAR(191),
-    `urb_edif` VARCHAR(191) NOT NULL,
+    `urb_edif` VARCHAR(191) NOT NULL DEFAULT '',
     `estrato` VARCHAR(191) NOT NULL,
     `barrio` VARCHAR(191) NOT NULL,
     `comuna` VARCHAR(191) NOT NULL,
@@ -75,7 +74,7 @@ CREATE TABLE `Predio` (
     `poligono` VARCHAR(191) NOT NULL,
     `zonaAvaluo` VARCHAR(191) NOT NULL,
 
-    UNIQUE INDEX `Predio_codigoCatrastal_key`(`codigoCatrastal`),
+    UNIQUE INDEX `Predio_codigoCatastral_key`(`codigoCatastral`),
     UNIQUE INDEX `Predio_matricula_key`(`matricula`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -88,18 +87,9 @@ CREATE TABLE `TipoSolicitud` (
     `objetivo_tramite` VARCHAR(191) NOT NULL,
     `area_contruicda` VARCHAR(191) NOT NULL,
     `sistema_estructural` VARCHAR(191) NOT NULL,
-    `detalles_solitud` VARCHAR(191) NOT NULL,
+    `detalles_solicitud` VARCHAR(191) NOT NULL,
+    `ponderate` VARCHAR(191) NOT NULL,
     `Radicado_ID` INTEGER,
-    `Ponderante_ID` INTEGER NOT NULL,
-
-    UNIQUE INDEX `TipoSolicitud_Ponderante_ID_unique`(`Ponderante_ID`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Ponderante` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `nombre` VARCHAR(191) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -110,10 +100,10 @@ CREATE TABLE `Radicado` (
     `nro_radicado` VARCHAR(191) NOT NULL,
     `cargo_fijo` INTEGER NOT NULL,
     `cargo_varible` INTEGER,
+    `Propietario_ID` INTEGER NOT NULL,
+    `Predio_ID` INTEGER NOT NULL,
     `usuario_ID` INTEGER,
     `Tramitador_ID` INTEGER,
-    `Propietario_ID` INTEGER,
-    `Predio_ID` INTEGER,
 
     UNIQUE INDEX `Radicado_nro_radicado_key`(`nro_radicado`),
     PRIMARY KEY (`id`)
@@ -147,19 +137,16 @@ ALTER TABLE `Usuario` ADD CONSTRAINT `Usuario_Tramitador_ID_fkey` FOREIGN KEY (`
 ALTER TABLE `TipoSolicitud` ADD CONSTRAINT `TipoSolicitud_Radicado_ID_fkey` FOREIGN KEY (`Radicado_ID`) REFERENCES `Radicado`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `TipoSolicitud` ADD CONSTRAINT `TipoSolicitud_Ponderante_ID_fkey` FOREIGN KEY (`Ponderante_ID`) REFERENCES `Ponderante`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Radicado` ADD CONSTRAINT `Radicado_Propietario_ID_fkey` FOREIGN KEY (`Propietario_ID`) REFERENCES `Propietario`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Radicado` ADD CONSTRAINT `Radicado_Predio_ID_fkey` FOREIGN KEY (`Predio_ID`) REFERENCES `Predio`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Radicado` ADD CONSTRAINT `Radicado_usuario_ID_fkey` FOREIGN KEY (`usuario_ID`) REFERENCES `Usuario`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Radicado` ADD CONSTRAINT `Radicado_Tramitador_ID_fkey` FOREIGN KEY (`Tramitador_ID`) REFERENCES `Tramitador`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Radicado` ADD CONSTRAINT `Radicado_Propietario_ID_fkey` FOREIGN KEY (`Propietario_ID`) REFERENCES `Propietario`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Radicado` ADD CONSTRAINT `Radicado_Predio_ID_fkey` FOREIGN KEY (`Predio_ID`) REFERENCES `Predio`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `_RoleToUsuario` ADD FOREIGN KEY (`A`) REFERENCES `Role`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

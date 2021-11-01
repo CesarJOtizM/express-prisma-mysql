@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-const { propietario } = prisma;
+const { tipoSolicitud } = prisma;
 
 export const create = async (req: Request, res: Response): Promise<void> => {
   if (!req.body) {
@@ -13,7 +13,7 @@ export const create = async (req: Request, res: Response): Promise<void> => {
   }
 
   try {
-    const data = await propietario.create({
+    const data = await tipoSolicitud.create({
       data: {
         ...req.body,
       },
@@ -21,29 +21,18 @@ export const create = async (req: Request, res: Response): Promise<void> => {
     res.status(201).send({ data });
   } catch (error) {
     res.status(500).send({
-      message: error || 'Some error occurred while creating the owner.',
+      message: error || 'Some error occurred while creating request type.',
     });
   }
 };
 
-export const findAll = async (req: Request, res: Response): Promise<void> => {
-  const { doc } = req.query;
-
-  const condition = doc ? { numero_doc: { contains: `${doc}` } } : undefined;
-
+export const findAll = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const data = await propietario.findMany({
-      where: condition,
-      include: {
-        predios: {
-          select: { id: true },
-        },
-      },
-    });
+    const data = await tipoSolicitud.findMany();
     res.status(200).send({ data });
   } catch (error) {
     res.status(500).send({
-      message: error || 'Some error occurred while finding the owner.',
+      message: error || 'Some error occurred while finding the request type.',
     });
   }
 };
@@ -52,12 +41,16 @@ export const findOne = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
   try {
-    const data = await propietario.findUnique({
+    const data = await tipoSolicitud.findUnique({
       where: {
         id: parseInt(id),
       },
       include: {
-        predios: true,
+        Radicado: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
     res.status(200).send({
@@ -65,7 +58,7 @@ export const findOne = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error) {
     res.status(500).send({
-      message: error || `Some error occurred while find the owner with id:${id}.`,
+      message: error || `Some error occurred while find the request type with id:${id}.`,
     });
   }
 };
@@ -74,7 +67,7 @@ export const edit = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
   try {
-    const data = await propietario.update({
+    const data = await tipoSolicitud.update({
       where: {
         id: parseInt(id),
       },
@@ -86,12 +79,13 @@ export const edit = async (req: Request, res: Response): Promise<void> => {
       });
     } else {
       res.status(400).send({
-        message: `Some error occurred while update the owner with id:${id}.`,
+        message: `Some error occurred while update the request type with id:${id}.`,
       });
     }
   } catch (error) {
     res.status(500).send({
-      message: error || `Some error occurred while update the owner with id:${id}.`,
+      message:
+        error || `Some error occurred while update the request type with id:${id}.`,
     });
   }
 };
@@ -100,7 +94,7 @@ export const deleteOne = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
   try {
-    const data = await propietario.delete({
+    const data = await tipoSolicitud.delete({
       where: {
         id: parseInt(id),
       },
@@ -111,12 +105,13 @@ export const deleteOne = async (req: Request, res: Response): Promise<void> => {
       });
     } else {
       res.status(400).send({
-        message: `Some error occurred while delete the owner with id:${id}.`,
+        message: `Some error occurred while delete the request type with id:${id}.`,
       });
     }
   } catch (error) {
     res.status(500).send({
-      message: error || `Some error occurred while delete the owner with id:${id}.`,
+      message:
+        error || `Some error occurred while delete the request type with id:${id}.`,
     });
   }
 };

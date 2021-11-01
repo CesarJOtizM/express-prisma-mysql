@@ -7,12 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum rol {
-  Tramitador
-  Admin
-  Propietario
-}
-
+//userController.ts
 model Usuario {
   id       Int    @id @default(autoincrement())
   email    String @unique
@@ -20,12 +15,13 @@ model Usuario {
 
   Rol            Role[]
   Propietario    Propietario? @relation(fields: [Propietario_ID], references: [id])
-  Propietario_ID Int?
+  Propietario_ID Int?         @unique
   Tramitador     Tramitador?  @relation(fields: [Tramitador_ID], references: [id])
-  Tramitador_ID  Int?
+  Tramitador_ID  Int?         @unique
   Radicado       Radicado[]
 }
 
+//roleController.ts
 model Role {
   id   Int    @id @default(autoincrement())
   tipo String
@@ -33,6 +29,7 @@ model Role {
   Usuario Usuario[]
 }
 
+//processorController.ts
 model Tramitador {
   id         Int    @id @default(autoincrement())
   nombres    String
@@ -48,35 +45,35 @@ model Tramitador {
 
 }
 
+//ownerController.ts
 model Propietario {
-  id          Int     @id @default(autoincrement())
-  nombres     String
-  apellidos   String
-  tipo_doc    String
-  numero_doc  String  @unique
-  email       String  @unique
-  telefono    String
-  ciudad      String
-  es_Juridica Boolean
+  id           Int    @id @default(autoincrement())
+  nombres      String
+  apellidos    String
+  tipo_doc     String
+  numero_doc   String @unique
+  email        String @unique
+  telefono     String
+  tipo_persona String @default("Natural")
 
-  Usuario  Usuario?
-  Predios  Predio[]
-  Radicado Radicado[]
+  Usuario Usuario?
+  predios Predio[]
 }
 
+//estateController.ts
 model Predio {
   id                 Int     @id @default(autoincrement())
-  codigoCatrastal    String  @unique
+  codigoCatastral    String  @unique
   matricula          String? @unique
   via                String
   nro                String
-  apen               String
+  apen               String  @default("")
   cruce              String
-  nro2               String  @default("")
+  nro2               String
   apen2              String  @default("")
   placa              String?
   apartamento        String?
-  urb_edif           String
+  urb_edif           String  @default("")
   estrato            String
   barrio             String
   comuna             String
@@ -85,10 +82,11 @@ model Predio {
   poligono           String
   zonaAvaluo         String
 
-  Propietarios Propietario[]
+  propietarios Propietario[]
   Radicados    Radicado[]
 }
 
+//requestController.ts
 model TipoSolicitud {
   id                  Int    @id @default(autoincrement())
   licencia            String
@@ -96,34 +94,26 @@ model TipoSolicitud {
   objetivo_tramite    String
   area_contruicda     String
   sistema_estructural String
-  detalles_solitud    String
+  detalles_solicitud  String
+  ponderate           String
 
-  Radicado      Radicado?  @relation(fields: [Radicado_ID], references: [id])
-  Radicado_ID   Int?
-  Ponderate     Ponderante @relation(fields: [Ponderante_ID], references: [id])
-  Ponderante_ID Int
+  Radicado    Radicado? @relation(fields: [Radicado_ID], references: [id])
+  Radicado_ID Int?
 }
 
-model Ponderante {
-  id     Int    @id @default(autoincrement())
-  nombre String
-
-  Tipo_Solicitud TipoSolicitud?
-}
-
+//settledController.ts
 model Radicado {
   id            Int    @id @default(autoincrement())
   nro_radicado  String @unique
   cargo_fijo    Int
   cargo_varible Int?
 
+
+  Predio         Predio          @relation(fields: [Predio_ID], references: [id])
+  Predio_ID      Int
   Usuario        Usuario?        @relation(fields: [usuario_ID], references: [id])
   usuario_ID     Int?
   Tramitador     Tramitador?     @relation(fields: [Tramitador_ID], references: [id])
   Tramitador_ID  Int?
-  Propietario    Propietario?    @relation(fields: [Propietario_ID], references: [id])
-  Propietario_ID Int?
-  Predio         Predio?         @relation(fields: [Predio_ID], references: [id])
-  Predio_ID      Int?
   Tipo_Solicitud TipoSolicitud[]
 }

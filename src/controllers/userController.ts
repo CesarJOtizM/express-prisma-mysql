@@ -97,9 +97,9 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
     const data = await usuario.findMany({
       where: condition,
       include: {
-        tramitador: true,
-        propietario: true,
-        rol: { select: { rol_ID: true } },
+        Tramitador: true,
+        Propietario: true,
+        Rol: { select: { id: true } },
       },
     });
     res.status(200).send({ datos: data });

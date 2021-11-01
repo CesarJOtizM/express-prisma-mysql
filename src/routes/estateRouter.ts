@@ -2,7 +2,8 @@ import { Router, Express } from 'express';
 import {
   create,
   findAll,
-  findOne,
+  findOneByID,
+  findOneByCodCas,
   edit,
   deleteOne,
 } from '../controllers/estateController';
@@ -12,7 +13,9 @@ const estateRouter = (app: Express): void => {
 
   router.post('/', create);
   router.get('/', findAll);
-  router.get('/:id', findOne);
+  router.get('/:id', findOneByID);
+  router.get('/codCatastral/:codigoCatastral', findOneByCodCas);
+
   router.put('/:id', edit);
   router.delete('/:id', deleteOne);
 

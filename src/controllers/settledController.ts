@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-const { propietario } = prisma;
+const { radicado } = prisma;
 
 export const create = async (req: Request, res: Response): Promise<void> => {
   if (!req.body) {
@@ -11,39 +11,57 @@ export const create = async (req: Request, res: Response): Promise<void> => {
     });
     return;
   }
+  const { Radicado, tramites, Predio, owners } = req.body;
 
   try {
-    const data = await propietario.create({
+    const data = await radicado.create({
       data: {
-        ...req.body,
+        ...Radicado,
+        Tipo_Solicitud: {
+          create: tramites,
+        },
+        Predio: {
+          create: {
+            ...Predio,
+            propietarios: {
+              create: owners,
+            },
+          },
+        },
       },
     });
     res.status(201).send({ data });
   } catch (error) {
     res.status(500).send({
-      message: error || 'Some error occurred while creating the owner.',
+      message: error || 'Some error occurred while creating settled.',
     });
   }
 };
 
 export const findAll = async (req: Request, res: Response): Promise<void> => {
-  const { doc } = req.query;
+  const { nro_radicado } = req.query;
 
-  const condition = doc ? { numero_doc: { contains: `${doc}` } } : undefined;
+  const condition = nro_radicado
+    ? { nro_radicado: { contains: `${nro_radicado}` } }
+    : undefined;
 
   try {
-    const data = await propietario.findMany({
+    const data = await radicado.findMany({
       where: condition,
       include: {
-        predios: {
-          select: { id: true },
+        Tipo_Solicitud: {
+          select: {
+            licencia: true,
+            objetivo_tramite: true,
+            detalles_solicitud: true,
+          },
         },
       },
     });
     res.status(200).send({ data });
   } catch (error) {
     res.status(500).send({
-      message: error || 'Some error occurred while finding the owner.',
+      message: error || 'Some error occurred while finding the settled.',
     });
   }
 };
@@ -52,12 +70,14 @@ export const findOne = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
   try {
-    const data = await propietario.findUnique({
+    const data = await radicado.findUnique({
       where: {
         id: parseInt(id),
       },
       include: {
-        predios: true,
+        Predio: true,
+        Tramitador: true,
+        Tipo_Solicitud: true,
       },
     });
     res.status(200).send({
@@ -65,7 +85,7 @@ export const findOne = async (req: Request, res: Response): Promise<void> => {
     });
   } catch (error) {
     res.status(500).send({
-      message: error || `Some error occurred while find the owner with id:${id}.`,
+      message: error || `Some error occurred while find the settled with id:${id}.`,
     });
   }
 };
@@ -74,7 +94,7 @@ export const edit = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
   try {
-    const data = await propietario.update({
+    const data = await radicado.update({
       where: {
         id: parseInt(id),
       },
@@ -86,12 +106,12 @@ export const edit = async (req: Request, res: Response): Promise<void> => {
       });
     } else {
       res.status(400).send({
-        message: `Some error occurred while update the owner with id:${id}.`,
+        message: `Some error occurred while update the settled with id:${id}.`,
       });
     }
   } catch (error) {
     res.status(500).send({
-      message: error || `Some error occurred while update the owner with id:${id}.`,
+      message: error || `Some error occurred while update the settled with id:${id}.`,
     });
   }
 };
@@ -100,7 +120,7 @@ export const deleteOne = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
   try {
-    const data = await propietario.delete({
+    const data = await radicado.delete({
       where: {
         id: parseInt(id),
       },
@@ -111,12 +131,12 @@ export const deleteOne = async (req: Request, res: Response): Promise<void> => {
       });
     } else {
       res.status(400).send({
-        message: `Some error occurred while delete the owner with id:${id}.`,
+        message: `Some error occurred while delete the settled with id:${id}.`,
       });
     }
   } catch (error) {
     res.status(500).send({
-      message: error || `Some error occurred while delete the owner with id:${id}.`,
+      message: error || `Some error occurred while delete the settled with id:${id}.`,
     });
   }
 };

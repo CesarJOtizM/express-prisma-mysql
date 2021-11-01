@@ -11,10 +11,15 @@ export const create = async (req: Request, res: Response): Promise<void> => {
     });
     return;
   }
+  const { Predio, owners } = req.body;
+
   try {
     const data = await predio.create({
       data: {
-        ...req.body,
+        ...Predio,
+        propietarios: {
+          create: owners,
+        },
       },
     });
     res.status(201).send({ data });
@@ -26,12 +31,17 @@ export const create = async (req: Request, res: Response): Promise<void> => {
 };
 
 export const findAll = async (req: Request, res: Response): Promise<void> => {
+  const { codigoCatastral } = req.query;
   const { matricula } = req.query;
 
-  const condition = matricula ? { matricula: { contains: `${matricula}` } } : undefined;
+  const condition1 = codigoCatastral
+    ? { codigoCatastral: { contains: `${codigoCatastral}` } }
+    : undefined;
+
+  const condition2 = matricula ? { matricula: { contains: `${matricula}` } } : undefined;
 
   try {
-    const data = await predio.findMany({ where: condition });
+    const data = await predio.findMany({ where: condition1 ? condition1 : condition2 });
     res.status(200).send({ data });
   } catch (error) {
     res.status(500).send({
@@ -40,7 +50,7 @@ export const findAll = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const findOne = async (req: Request, res: Response): Promise<void> => {
+export const findOneByID = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
 
   try {
@@ -49,7 +59,7 @@ export const findOne = async (req: Request, res: Response): Promise<void> => {
         id: parseInt(id),
       },
       include: {
-        Propietarios: true,
+        propietarios: true,
         Radicados: {
           select: { nro_radicado: true },
         },
@@ -65,15 +75,54 @@ export const findOne = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const findOneByCodCas = async (req: Request, res: Response): Promise<void> => {
+  const { codigoCatastral } = req.params;
+
+  try {
+    const data = await predio.findUnique({
+      where: {
+        codigoCatastral,
+      },
+      include: {
+        propietarios: true,
+        Radicados: {
+          select: { nro_radicado: true },
+        },
+      },
+    });
+    res.status(200).send({
+      data,
+    });
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error || `Some error occurred while find the predio with id:${codigoCatastral}.`,
+    });
+  }
+};
+
 export const edit = async (req: Request, res: Response): Promise<void> => {
   const { id } = req.params;
+
+  const { Predio, owners } = req.body;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const ownersUpdate: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  owners.map((el: any) => {
+    ownersUpdate.push({ where: { numero_doc: el.numero_doc }, data: { ...el } });
+  });
 
   try {
     const data = await predio.update({
       where: {
         id: parseInt(id),
       },
-      data: { ...req.body },
+      data: {
+        ...Predio,
+        propietarios: {
+          update: ownersUpdate,
+        },
+      },
     });
     if (data) {
       res.status(200).send({
