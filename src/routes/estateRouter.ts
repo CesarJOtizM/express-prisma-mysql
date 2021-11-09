@@ -6,16 +6,17 @@ import {
   findOneByCodCas,
   edit,
   deleteOne,
+  removeOwner,
 } from '../controllers/estateController';
 
 const estateRouter = (app: Express): void => {
   const router = Router();
 
   router.post('/', create);
+  router.post('/removeOwner/:id', removeOwner);
   router.get('/', findAll);
   router.get('/:id', findOneByID);
   router.get('/codCatastral/:codigoCatastral', findOneByCodCas);
-
   router.put('/:id', edit);
   router.delete('/:id', deleteOne);
 

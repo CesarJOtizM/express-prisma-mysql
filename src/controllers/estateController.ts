@@ -21,6 +21,9 @@ export const create = async (req: Request, res: Response): Promise<void> => {
           create: owners,
         },
       },
+      include: {
+        propietarios: true,
+      },
     });
     res.status(201).send({ data });
   } catch (error) {
@@ -109,7 +112,11 @@ export const edit = async (req: Request, res: Response): Promise<void> => {
   const ownersUpdate: any[] = [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   owners.map((el: any) => {
-    ownersUpdate.push({ where: { numero_doc: el.numero_doc }, data: { ...el } });
+    ownersUpdate.push({
+      create: { ...el },
+      update: { ...el },
+      where: { numero_doc: el.numero_doc },
+    });
   });
 
   try {
@@ -120,8 +127,11 @@ export const edit = async (req: Request, res: Response): Promise<void> => {
       data: {
         ...Predio,
         propietarios: {
-          update: ownersUpdate,
+          upsert: ownersUpdate,
         },
+      },
+      include: {
+        propietarios: true,
       },
     });
     if (data) {
@@ -162,6 +172,40 @@ export const deleteOne = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     res.status(500).send({
       message: error || `Some error occurred while delete the predio with id:${id}.`,
+    });
+  }
+};
+
+export const removeOwner = async (req: Request, res: Response): Promise<void> => {
+  const { idOwner } = req.body;
+  const { id } = req.params;
+
+  try {
+    const data = await predio.update({
+      where: {
+        id: parseInt(id),
+      },
+      data: {
+        propietarios: {
+          disconnect: [{ id: idOwner }],
+        },
+      },
+      select: {
+        propietarios: true,
+      },
+    });
+    if (data) {
+      res.status(200).send({
+        data,
+      });
+    } else {
+      res.status(400).send({
+        message: `Some error occurred while update the predio with id:${id}.`,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error || `Some error occurred while update the predio with id:${id}.`,
     });
   }
 };

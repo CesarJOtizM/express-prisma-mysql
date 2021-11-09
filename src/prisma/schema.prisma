@@ -38,7 +38,6 @@ model Tramitador {
   numero_doc String @unique
   email      String @unique
   telefono   String
-  ciudad     String
 
   Usuario  Usuario?
   Radicado Radicado[]
@@ -92,10 +91,11 @@ model TipoSolicitud {
   licencia            String
   tipo_licencia       String
   objetivo_tramite    String
-  area_contruicda     String
+  area_construida     String
+  modalidad           String
   sistema_estructural String
   detalles_solicitud  String
-  ponderate           String
+  ponderador          String
 
   Radicado    Radicado? @relation(fields: [Radicado_ID], references: [id])
   Radicado_ID Int?
@@ -103,17 +103,36 @@ model TipoSolicitud {
 
 //settledController.ts
 model Radicado {
-  id            Int    @id @default(autoincrement())
-  nro_radicado  String @unique
+  id            Int      @id @default(autoincrement())
+  nro_radicado  String   @unique
   cargo_fijo    Int
   cargo_varible Int?
+  req_minimos   Boolean  @default(false)
+  crated_at     DateTime
 
+  Estado            EstadoRadicado      @relation(fields: [Estado_ID], references: [id])
+  Estado_ID         Int
+  DocumentosTramite DocumentosTramite[]
+  Predio            Predio              @relation(fields: [Predio_ID], references: [id])
+  Predio_ID         Int
+  Usuario           Usuario?            @relation(fields: [usuario_ID], references: [id])
+  usuario_ID        Int?
+  Tramitador        Tramitador?         @relation(fields: [Tramitador_ID], references: [id])
+  Tramitador_ID     Int?
+  Tipo_Solicitud    TipoSolicitud[]
+}
 
-  Predio         Predio          @relation(fields: [Predio_ID], references: [id])
-  Predio_ID      Int
-  Usuario        Usuario?        @relation(fields: [usuario_ID], references: [id])
-  usuario_ID     Int?
-  Tramitador     Tramitador?     @relation(fields: [Tramitador_ID], references: [id])
-  Tramitador_ID  Int?
-  Tipo_Solicitud TipoSolicitud[]
+model DocumentosTramite {
+  id     Int    @id @default(autoincrement())
+  nombre String
+
+  radicado Radicado[]
+}
+
+model EstadoRadicado {
+  id     Int    @id @default(autoincrement())
+  nombre String
+
+  radicados Radicado[]
+
 }

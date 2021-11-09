@@ -8,6 +8,7 @@ import ownerRouter from './routes/ownerRoutes';
 import roleRouter from './routes/roleRoutes';
 import processorRouter from './routes/processorRoutes';
 import settledRoutes from './routes/settledRoutes';
+import templateRouter from './routes/templateRouter';
 
 const app = express();
 
@@ -24,5 +25,6 @@ ownerRouter(app);
 roleRouter(app);
 processorRouter(app);
 settledRoutes(app);
+templateRouter(app);
 
 export default app;
